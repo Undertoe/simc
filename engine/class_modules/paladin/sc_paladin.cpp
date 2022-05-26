@@ -12,11 +12,65 @@
 // ==========================================================================
 // Paladin
 // ==========================================================================
-namespace paladin_tbc
+namespace paladin
 {
+paladin_t::paladin_t( sim_t* sim, util::string_view name, race_e r )
+  : player_t( sim, PALADIN, name, r ),
+    active( active_spells_t() ),
+    buffs( buffs_t() ),
+    gains( gains_t() ),
+    spec( spec_t() ),
+    cooldowns( cooldowns_t() ),
+    passives( passives_t() ),
+    procs( procs_t() ),
+    spells( spells_t() ),
+    talents( talents_t() ),
+    beacon_target( nullptr ),
+{
+    active_consecration = nullptr;
+    active_aura         = nullptr;
+    active_seal         = nullptr;
+
+
 
 }
-namespace paladin
+namespace buffs
+{
+avenging_wrath_buff_t::avenging_wrath_buff_t( paladin_t* p )
+  : buff_t( p, "avenging_wrath", p->spells.avenging_wrath ),
+    damage_modifier( 0.0 ),
+    healing_modifier( 0.0 ),
+    crit_bonus( 0.0 )
+{
+  // Map modifiers appropriately based on spec
+  healing_modifier = data().effectN( 4 ).percent();
+  crit_bonus       = data().effectN( 3 ).percent();
+  damage_modifier  = data().effectN( 1 ).percent();
+
+  // Lengthen duration if Sanctified Wrath is taken
+  bool took_sw = false;
+  switch ( p->specialization() )
+  {
+    case PALADIN_RETRIBUTION:
+      if ( p->talents.sanctified_wrath->ok() )
+      {
+        base_buff_duration *= 1.0 + p->talents.sanctified_wrath->effectN( 1 ).percent();
+        took_sw = true;
+      }
+      break;
+    default:
+      break;
+  }
+  // let the ability handle the cooldown
+  cooldown->duration = 0_ms;
+
+  // invalidate Healing
+  add_invalidate( CACHE_PLAYER_HEAL_MULTIPLIER );
+}
+}  // namespace buffs
+
+}
+namespace paladin_retail
 {
 paladin_t::paladin_t( sim_t* sim, util::string_view name, race_e r )
   : player_t( sim, PALADIN, name, r ),

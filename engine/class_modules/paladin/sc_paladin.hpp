@@ -1,14 +1,18 @@
 #pragma once
 #include "simulationcraft.hpp"
 
-namespace paladin_tbc
+namespace paladin
 {
+
+struct seal_t;
+
 struct paladin_t;
     namespace buffs
     {
       struct avenging_wrath_buff_t;
       struct vengence_t;
       struct forbearance_t;
+      struct seal_t;
     }
 
 struct paladin_td_t : public actor_target_data_t
@@ -121,10 +125,536 @@ struct paladin_t : public player_t
       proc_t* redoubt;
     } procs;
 
+    // Spells
+    // TODO: not sure what this is for yet.
+    struct spells_t
+    {
+      const spell_data_t* avenging_wrath;
+
+      const spell_data_t* sotr_buff;
+
+      const spell_data_t* reckoning;
+
+    } spells;
+
+    // Talents
+    struct talents_t
+    {
+      // Ret
+      spell_data_t* deflection;
+      spell_data_t* benediction;
+      spell_data_t* improved_judgements;
+      spell_data_t* heart_of_the_crusader;
+      spell_data_t* improved_blessing_of_might;
+      spell_data_t* vindication;
+      spell_data_t* conviction;
+      spell_data_t* seal_of_command;
+      spell_data_t* pursuit_of_justice;
+      spell_data_t* eye_for_an_eye;
+      spell_data_t* sanctity_of_battle;
+      spell_data_t* crusade;
+      spell_data_t* improved_two_handed;
+      spell_data_t* sanctified_retribution;
+      spell_data_t* vengance;
+      spell_data_t* art_of_war;
+      spell_data_t* repentance;
+      spell_data_t* judgements_of_the_wise;
+      spell_data_t* fanaticism;
+      spell_data_t* sanctified_wrath;
+      spell_data_t* swift_retribution;
+      spell_data_t* crusader_strike;
+      spell_data_t* sheath_of_light;
+      spell_data_t* righteous_vengeance;
+      spell_data_t* divine_storm;
+
+      // prot
+      spell_data_t* divinity;
+      spell_data_t* divine_strength;
+      spell_data_t* stoicism;
+      spell_data_t* guardians_favor;
+      spell_data_t* anticipation;
+      spell_data_t* divine_sacrifice;
+      spell_data_t* improved_righteous_fury;
+      spell_data_t* toughness;
+      spell_data_t* divine_guardian;
+      spell_data_t* improved_hammer_of_justice;
+      spell_data_t* improved_devotion_aura;
+      spell_data_t* blessing_of_sanctuary;
+      spell_data_t* reckoning;
+      spell_data_t* sacred_duty;
+      spell_data_t* one_handed_specialization;
+      spell_data_t* spiritual_attunement;
+      spell_data_t* holy_shield;
+      spell_data_t* ardent_defender;
+      spell_data_t* redoubt;
+      spell_data_t* combat_expertise;
+      spell_data_t* touched_by_the_light;
+      spell_data_t* avengers_shield;
+      spell_data_t* guarded_by_the_light;
+      spell_data_t* shield_of_the_templar;
+      spell_data_t* judgements_of_the_just;
+      spell_data_t* hammer_of_the_righteous;
+
+      // holy
+      spell_data_t* spiritual_focus;
+      spell_data_t* seals_of_the_pure;
+      spell_data_t* healing_light;
+      spell_data_t* divine_intellect;
+      spell_data_t* unyielding_faith;
+      spell_data_t* aura_mastery;
+      spell_data_t* illumination;
+      spell_data_t* improved_lay_on_hands;
+      spell_data_t* improved_concentration_aura;
+      spell_data_t* improved_blessing_of_wisdom;
+      spell_data_t* blessed_hands;
+      spell_data_t* pure_of_heart;
+      spell_data_t* divine_favor;
+      spell_data_t* sanctified_light;
+      spell_data_t* purifying_power;
+      spell_data_t* holy_power;
+      spell_data_t* lights_grace;
+      spell_data_t* holy_shock;
+      spell_data_t* blessed_life;
+      spell_data_t* sacred_cleansing;
+      spell_data_t* holy_guidance;
+      spell_data_t* divine_illumination;
+      spell_data_t* judgements_of_the_pure;
+      spell_data_t* infusion_of_light;
+      spell_data_t* enlightened_judgements;
+      spell_data_t* becon_of_light;
+    } talents;
+    player_t* beacon_target;
+
+    paladin_t( sim_t* sim, util::string_view name, race_e r = RACE_BLOOD_ELF );
+
+    virtual void      init_assessors() override;
+    virtual void      init_base_stats() override;
+    virtual void      init_gains() override;
+    virtual void      init_procs() override;
+    virtual void      init() override;
+    virtual void      init_scaling() override;
+    virtual void      create_buffs() override;
+    virtual void      init_rng() override;
+    virtual void      init_spells() override;
+    virtual void      init_action_list() override;
+    virtual void      reset() override;
+    virtual std::unique_ptr<expr_t> create_expression( util::string_view name ) override;
+
+    // player stat functions
+    virtual double    composite_player_multiplier( school_e ) const override;
+    virtual double    composite_attribute_multiplier( attribute_e attr ) const override;
+    virtual double    composite_attack_power_multiplier() const override;
+    virtual double    composite_bonus_armor() const override;
+    virtual double    composite_melee_attack_power() const override;
+    virtual double    composite_melee_attack_power_by_type(attack_power_type ap_type ) const override;
+    virtual double    composite_melee_crit_chance() const override;
+    virtual double    composite_spell_crit_chance() const override;
+    virtual double    composite_damage_versatility() const override;
+    virtual double    composite_heal_versatility() const override;
+    virtual double    composite_mitigation_versatility() const override;
+    virtual double    composite_mastery() const override;
+    virtual double    composite_melee_haste() const override;
+    virtual double    composite_melee_speed() const override;
+    virtual double    composite_spell_haste() const override;
+    virtual double    composite_spell_power( school_e school ) const override;
+    virtual double    composite_spell_power_multiplier() const override;
+    virtual double    composite_crit_avoidance() const override;
+    virtual double    composite_parry_rating() const override;
+    virtual double    composite_block() const override;
+    virtual double    composite_block_reduction( action_state_t* s ) const override;
+    virtual double    temporary_movement_modifier() const override;
+    virtual double 	  composite_player_target_multiplier ( player_t *target, school_e school ) const override;
+    virtual double    composite_base_armor_multiplier() const override;
+
+    virtual double resource_gain( resource_e resource_type, double amount, gain_t* source = nullptr,
+                                  action_t* action = nullptr ) override;
+    virtual double resource_loss( resource_e resource_type, double amount, gain_t* source = nullptr,
+                                  action_t* action = nullptr ) override;
+
+    // combat outcome functions
+    virtual void      assess_damage( school_e, result_amount_type, action_state_t* ) override;
+    virtual void      target_mitigation( school_e, result_amount_type, action_state_t* ) override;
+
+    virtual void      invalidate_cache( cache_e ) override;
+    virtual void      create_options() override;
+    virtual double    matching_gear_multiplier( attribute_e attr ) const override;
+    virtual void      create_actions() override;
+    virtual action_t* create_action( util::string_view name, util::string_view options_str ) override;
+    virtual resource_e primary_resource() const override;
+    virtual role_e    primary_role() const override;
+    virtual stat_e    convert_hybrid_stat( stat_e s ) const override;
+    virtual void      combat_begin() override;
+    virtual void      copy_from( player_t* ) override;
+
+    void    trigger_holy_shield( action_state_t* s );
+    void    trigger_forbearance( player_t* target );
+    int     get_local_enemies( double distance ) const;
+    // Returns true if AW/Crusade is up, or if the target is below 20% HP.
+    // This isn't in HoW's target_ready() so it can be used in the time_to_hpg expression
+    bool    get_how_availability( player_t* t ) const;
+
+    std::unique_ptr<expr_t> create_consecration_expression( util::string_view expr_str );
+
+    ground_aoe_event_t* active_consecration;
+    buff_t* active_aura;
+    buffs::seal_t* active_seal;
+
+    std::string default_potion() const override;
+    std::string default_flask() const override;
+    std::string default_food() const override;
+    std::string default_rune() const override;
+    std::string default_temporary_enchant() const override;
+
+    void apply_affecting_auras( action_t& action ) override;
+
+    void      create_buffs_retribution();
+    void      init_rng_retribution();
+    void      init_spells_retribution();
+    void      generate_action_prio_list_ret();
+    void      create_ret_actions();
+    action_t* create_action_retribution( util::string_view name, util::string_view options_str );
+
+    void      create_buffs_protection();
+    void      init_spells_protection();
+    void      create_prot_actions();
+    action_t* create_action_protection( util::string_view name, util::string_view options_str );
+
+    void      create_buffs_holy();
+    void      init_spells_holy();
+    void      create_holy_actions();
+    action_t* create_action_holy( util::string_view name, util::string_view options_str );
+
+    void    generate_action_prio_list_prot();
+    void    generate_action_prio_list_holy();
+    void    generate_action_prio_list_holy_dps();
+
+    target_specific_t<paladin_td_t> target_data;
+
+    virtual const paladin_td_t* find_target_data( const player_t* target ) const override;
+    virtual paladin_td_t* get_target_data( player_t* target ) const override;
 };
+
+// ==========================================================================
+// Paladin Ability Templates
+// ==========================================================================
+
+// Template for common paladin action code. See priest_action_t.
+template <class Base>
+struct paladin_action_t : public Base
+{
+private:
+  typedef Base ab; // action base, eg. spell_t
+public:
+  typedef paladin_action_t base_t;
+
+  bool track_cd_waste;
+  cooldown_waste_data_t* cd_waste;
+
+  // Damage increase whitelists
+  struct affected_by_t
+  {
+    bool avenging_wrath; // Shared
+    bool crusade, hand_of_light; // Ret
+  } affected_by;
+
+  // haste scaling bools
+  bool hasted_gcd;
+
+  paladin_action_t( util::string_view n, paladin_t* p,
+                    const spell_data_t* s = spell_data_t::nil() ) :
+    ab( n, p, s ),
+    track_cd_waste( s -> cooldown() > 0_ms || s -> charge_cooldown() > 0_ms ),
+    cd_waste( nullptr ),
+    affected_by( affected_by_t() ),
+    hasted_gcd( false )
+  {
+    // Spec aura damage increase
+    if ( p -> specialization() == PALADIN_RETRIBUTION )
+    {
+      // Temporary damage modifiers
+      this -> affected_by.crusade = this -> data().affected_by( p -> talents.crusade -> effectN( 1 ) );
+    }
+//    if ( p->specialization() == PALADIN_HOLY )
+//    {
+//    }
+
+    this -> affected_by.avenging_wrath = this -> data().affected_by( p -> spells.avenging_wrath -> effectN( 1 ) );
+  }
+
+  paladin_t* p()
+  { return static_cast<paladin_t*>( ab::player ); }
+  const paladin_t* p() const
+  { return static_cast<paladin_t*>( ab::player ); }
+
+  paladin_td_t* td( player_t* t ) const
+  { return p() -> get_target_data( t ); }
+
+  void init() override
+  {
+    ab::init();
+
+    if ( track_cd_waste && ab::sim -> report_details != 0 )
+    {
+      cd_waste = p() -> get_cooldown_waste_data( ab::cooldown );
+    }
+
+    if ( hasted_gcd )
+    {
+      ab::gcd_type = gcd_haste_type::SPELL_HASTE;
+    }
+  }
+
+  void impact( action_state_t* s ) override
+  {
+    ab::impact( s );
+
+//    if ( td( s -> target ) -> debuff.judgment_of_light -> up() && p() -> cooldowns.judgment_of_light_icd -> up() )
+//    {
+//      trigger_judgment_of_light( s );
+//      p() -> cooldowns.judgment_of_light_icd -> start();
+//    }
+
+//    if ( ab::result_is_hit( s -> result ) )
+//    {
+
+//      if ( ab::harmful )
+//      {
+//      }
+
+
+//      paladin_td_t* td = this -> td( s -> target );
+//    }
+  }
+
+  virtual double action_multiplier() const override
+  {
+    double am = ab::action_multiplier();
+
+    if ( affected_by.hand_of_light )
+    {
+      am *= 1.0 + p() -> cache.mastery_value();
+    }
+
+    if ( affected_by.avenging_wrath && p() -> buffs.avenging_wrath -> up() )
+    {
+      am *= 1.0 + p() -> buffs.avenging_wrath -> get_damage_mod();
+    }
+
+    return am;
+  }
+
+  double composite_crit_chance() const override
+  {
+    double cc = ab::composite_crit_chance();
+
+    if ( affected_by.avenging_wrath && p() -> buffs.avenging_wrath -> up() )
+    {
+      cc += p() -> buffs.avenging_wrath -> get_crit_bonus();
+    }
+
+    return cc;
+  }
+
+  virtual double composite_target_multiplier( player_t* t ) const override
+  {
+    double ctm = ab::composite_target_multiplier( t );
+
+    paladin_td_t* td = this -> td( t );
+
+    return ctm;
+  }
+
+  virtual void update_ready( timespan_t cd = timespan_t::min() ) override
+  {
+    if ( cd_waste ) cd_waste -> add( cd, ab::time_to_execute );
+    ab::update_ready( cd );
+  }
+
+  virtual void assess_damage( result_amount_type typ, action_state_t* s ) override
+  {
+    ab::assess_damage( typ, s );
+
+//    paladin_td_t* td = this -> td( s -> target );
+  }
+};
+
+// ==========================================================================
+// The damage formula in action_t::calculate_direct_amount in sc_action.cpp is documented here:
+// https://github.com/simulationcraft/simc/wiki/DevelopersDocumentation#damage-calculations
+// ==========================================================================
+
+// paladin "Spell" Base for paladin_spell_t, paladin_heal_t and paladin_absorb_t
+
+template <class Base>
+struct paladin_spell_base_t : public paladin_action_t< Base >
+{
+private:
+  typedef paladin_action_t< Base > ab;
+public:
+  typedef paladin_spell_base_t base_t;
+
+  paladin_spell_base_t( util::string_view n, paladin_t* player,
+                        const spell_data_t* s = spell_data_t::nil() ) :
+    ab( n, player, s )
+  { }
+
+};
+
+// ==========================================================================
+// The damage formula in action_t::calculate_direct_amount in sc_action.cpp is documented here:
+// https://github.com/simulationcraft/simc/wiki/DevelopersDocumentation#damage-calculations
+// ==========================================================================
+
+
+// ==========================================================================
+// Paladin Spells, Heals, and Absorbs
+// ==========================================================================
+
+// paladin-specific spell_t, heal_t, and absorb_t classes for inheritance ===
+
+struct paladin_spell_t : public paladin_spell_base_t<spell_t>
+{
+  paladin_spell_t( util::string_view n, paladin_t* p,
+                   const spell_data_t* s = spell_data_t::nil() ) :
+    base_t( n, p, s )
+  { }
+};
+
+struct paladin_heal_t : public paladin_spell_base_t<heal_t>
+{
+  paladin_heal_t( util::string_view n, paladin_t* p,
+                  const spell_data_t* s = spell_data_t::nil() ) :
+    base_t( n, p, s )
+  {
+    may_crit          = true;
+    tick_may_crit     = true;
+    harmful = false;
+    // WARNING: When harmful = false, if you try to cast at time=0
+    // then the ability has no cost and no gcd, so it just spams it indefinitely
+
+    weapon_multiplier = 0.0;
+  }
+
+  virtual void impact( action_state_t* s ) override
+  {
+    base_t::impact( s );
+
+    if ( s -> target != p() -> beacon_target )
+      trigger_beacon_of_light( s );
+  }
+
+  void trigger_beacon_of_light( action_state_t* s )
+  {
+    if ( ! p() -> beacon_target )
+      return;
+
+//    if ( ! p() -> beacon_target -> buffs.beacon_of_light -> up() )
+//      return;
+
+    if ( proc )
+      return;
+
+    assert( p() -> active.beacon_of_light );
+
+    p() -> active.beacon_of_light -> target = p() -> beacon_target;
+
+    double amount = s -> result_amount;
+    amount *= p() -> beacon_target -> buffs.beacon_of_light -> data().effectN( 1 ).percent();
+
+    p() -> active.beacon_of_light -> base_dd_min = amount;
+    p() -> active.beacon_of_light -> base_dd_max = amount;
+
+    p() -> active.beacon_of_light -> execute();
+  }
+};
+
+struct paladin_absorb_t : public paladin_spell_base_t< absorb_t >
+{
+  paladin_absorb_t( util::string_view n, paladin_t* p,
+                    const spell_data_t* s = spell_data_t::nil() ) :
+    base_t( n, p, s )
+  { }
+};
+
+struct paladin_melee_attack_t: public paladin_action_t < melee_attack_t >
+{
+  paladin_melee_attack_t( util::string_view n, paladin_t* p,
+                          const spell_data_t* s = spell_data_t::nil()) :
+    base_t( n, p, s )
+  {
+    may_crit = true;
+    special = true;
+    weapon = &( p -> main_hand_weapon );
+  }
+};
+
+
+namespace seals
+{
+
 }
 
-namespace paladin {
+namespace buffs {
+struct avenging_wrath_buff_t : public buff_t
+{
+  avenging_wrath_buff_t( paladin_t* p );
+  double get_damage_mod() const
+  {
+    return damage_modifier;
+  }
+  double get_healing_mod() const
+  {
+    return healing_modifier;
+  }
+  double get_crit_bonus() const
+  {
+      return crit_bonus;
+  }
+
+private:
+  double damage_modifier;
+  double healing_modifier;
+  double crit_bonus;
+};
+
+
+struct seal_t : public buff_t
+{
+    seal_t(actor_pair_t q, util::string_view name, const spell_data_t* data, const item_t* item = nullptr) :
+        buff_t(q, name, data, item ) { }
+
+    spell_t* seal_use;
+};
+
+struct seal_of_vengance_t : public seal_t
+{
+
+};
+
+struct seal_of_command_t : public seal_t
+{
+
+};
+
+struct seal_of_righteousness_t : public seal_t
+{
+
+};
+
+struct seal_of_wisdom_t : public seal_t
+{
+
+};
+
+struct seal_of_light_t : public seal_t
+{
+
+};
+
+
+}
+
+namespace paladin_retail {
 // Forward declarations
 typedef std::pair<std::string, simple_sample_data_with_min_max_t> data_t;
 typedef std::pair<std::string, simple_sample_data_t> simple_data_t;
