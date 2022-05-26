@@ -1,6 +1,129 @@
 #pragma once
 #include "simulationcraft.hpp"
 
+namespace paladin_tbc
+{
+struct paladin_t;
+    namespace buffs
+    {
+      struct avenging_wrath_buff_t;
+      struct vengence_t;
+      struct forbearance_t;
+    }
+
+struct paladin_td_t : public actor_target_data_t
+{
+    struct dots_t
+    {
+        dot_t* righteous_vengeance;
+        dot_t* seal_of_vengance;
+    } dots;
+
+    struct buffs_t
+    {
+    } debuff;
+
+    paladin_td_t( player_t* target, paladin_t* paladin );
+
+};
+
+struct paladin_t : public player_t
+{
+    struct active_spells_t
+    {
+      action_t* crusader_strike;
+      action_t* divine_storm;
+      action_t* judgement;
+      action_t* consecration;
+      action_t* exorcism;
+      action_t* holy_wrath;
+      action_t* hammer_of_wrath;
+    } active;
+
+    struct buffs_t
+    {
+
+      // Shared
+      buffs::avenging_wrath_buff_t* avenging_wrath;
+
+      // seals
+      buff_t* seal_of_command;
+      buff_t* seal_of_vengeance;
+      buff_t* seal_of_the_righeousness;
+      buff_t* seal_of_wisdom;
+      buff_t* seal_of_light;
+
+      // Ret
+      buff_t* vengeance;
+
+      buff_t* divine_purpose;
+      buff_t* divine_shield;
+      buff_t* divine_steed;
+      buff_t* devotion_aura;
+
+      buff_t* avengers_might;
+
+    } buffs;
+
+    // Gains
+    struct gains_t
+    {
+      // Mana
+      gain_t* judgements_of_the_wise;
+    } gains;
+
+    // Spec Passives
+    struct spec_t
+    {
+    } spec;
+
+
+    // Cooldowns
+    struct cooldowns_t
+    {
+      // Required to get various cooldown-reducing procs procs working
+      cooldown_t* avenging_wrath; // Righteous Protector (prot)
+      cooldown_t* judgement;
+      cooldown_t* exorcism;
+      cooldown_t* hammer_of_wrath;
+      cooldown_t* consecration;
+
+      // ret cds
+      cooldown_t* divine_storm;
+      cooldown_t* crusader_strike;
+
+      cooldown_t* hammer_of_justice;
+
+      // holy
+      cooldown_t* holy_shock; // Crusader's Might, Divine Purpose
+
+      // prot
+      cooldown_t* avengers_shield; // Grand Crusader
+      cooldown_t* shield_of_the_righteous; // Judgment
+      cooldown_t* guardian_of_ancient_kings; // Righteous Protector
+      cooldown_t* ardent_defender; // Resolute Defender
+    } cooldowns;
+
+    // Passives
+    struct passives_t
+    {
+      const spell_data_t* paladin;
+
+      // ret
+      const spell_data_t* art_of_war;
+    } passives;
+
+    struct procs_t
+    {
+      proc_t* art_of_war;
+      proc_t* divine_purpose;
+      proc_t* reckoning;
+      proc_t* redoubt;
+    } procs;
+
+};
+}
+
 namespace paladin {
 // Forward declarations
 typedef std::pair<std::string, simple_sample_data_with_min_max_t> data_t;

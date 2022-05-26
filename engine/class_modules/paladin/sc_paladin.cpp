@@ -12,6 +12,10 @@
 // ==========================================================================
 // Paladin
 // ==========================================================================
+namespace paladin_tbc
+{
+
+}
 namespace paladin
 {
 paladin_t::paladin_t( sim_t* sim, util::string_view name, race_e r )
