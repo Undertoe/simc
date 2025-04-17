@@ -42,43 +42,19 @@ struct warlock_td_t : public actor_target_data_t
   propagate_const<dot_t*> dots_agony;
   propagate_const<dot_t*> dots_seed_of_corruption;
   propagate_const<dot_t*> dots_drain_soul;
-  propagate_const<dot_t*> dots_phantom_singularity;
   propagate_const<dot_t*> dots_unstable_affliction;
-  propagate_const<dot_t*> dots_vile_taint;
-  propagate_const<dot_t*> dots_drain_life_aoe; // Soul Rot effect
-  propagate_const<dot_t*> dots_soul_rot;
-  propagate_const<dot_t*> dots_jackpot_ua; // TWW 11.1 4pc version of Unstable Affliction
 
   propagate_const<buff_t*> debuffs_haunt;
-  propagate_const<buff_t*> debuffs_shadow_embrace;
-  propagate_const<buff_t*> debuffs_infirmity;
 
   // Demo
-  propagate_const<buff_t*> debuffs_wicked_maw;
-  propagate_const<buff_t*> debuffs_fel_sunder; // Done in owner target data for easier handling
   propagate_const<buff_t*> debuffs_doom;
 
   // Destro
   propagate_const<dot_t*> dots_immolate;
 
   propagate_const<buff_t*> debuffs_shadowburn;
-  propagate_const<buff_t*> debuffs_eradication;
   propagate_const<buff_t*> debuffs_havoc;
-  propagate_const<buff_t*> debuffs_pyrogenics;
   propagate_const<buff_t*> debuffs_conflagrate;
-
-  // Diabolist
-  propagate_const<buff_t*> debuffs_cloven_soul;
-
-  // Hellcaller
-  propagate_const<dot_t*> dots_wither;
-
-  propagate_const<buff_t*> debuffs_blackened_soul; // Dummy/Hidden debuff that triggers stack collapse
-
-  // Soul Harvester
-  propagate_const<dot_t*> dots_soul_anathema;
-
-  propagate_const<buff_t*> debuffs_shared_fate;
 
   double soc_threshold; // Aff - Seed of Corruption counts damage from cross-spec spells such as Drain Life
 
