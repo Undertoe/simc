@@ -30,22 +30,10 @@ struct warlock_pet_t : public pet_t
 
   struct buffs_t
   {
-    propagate_const<buff_t*> embers;  // Infernal Shard Generation
     propagate_const<buff_t*> demonic_strength; // Talent that buffs Felguard
     propagate_const<buff_t*> grimoire_of_service; // Buff used by Grimoire: Felguard talent
-    propagate_const<buff_t*> annihilan_training; // Permanent aura when talented, 10% increased damage to all abilities
-    propagate_const<buff_t*> dread_calling;
-    propagate_const<buff_t*> imp_gang_boss; // Aura applied to some Wild Imps for increased damage (and size)
-    propagate_const<buff_t*> antoran_armaments; // Permanent aura when talented, 20% increased damage to all abilities plus Soul Strike cleave
-    propagate_const<buff_t*> the_expendables;
-    propagate_const<buff_t*> reign_of_tyranny;
-    propagate_const<buff_t*> fiendish_wrath; // Guillotine talent buff, causes AoE melee attacks and prevents Felstorm
-    propagate_const<buff_t*> demonic_inspiration; // Haste buff triggered by filling a Soul Shard
-    propagate_const<buff_t*> wrathful_minion; // Damage buff triggered by filling a Soul Shard
     propagate_const<buff_t*> demonic_power;
-    propagate_const<buff_t*> empowered_legion_strike; // TWW1 Demonology 4pc buff
-    propagate_const<buff_t*> demonic_hunger; // TWW2 Demonology 2pc buff
-    propagate_const<buff_t*> spliced_4pc; // TWW2 Demonology 4pc dummy buff
+    propagate_const<buff_t*> embers;  // TODO: MOP validate?
   } buffs;
 
   bool is_main_pet = false;
@@ -338,6 +326,31 @@ struct voidwalker_pet_t : public warlock_pet_t
 
 }  // namespace base
 
+struct infernal_t : public warlock_pet_t
+{
+  buff_t* immolation;
+  enum infernal_type_e { MAIN, RAIN, FRAG };
+  infernal_type_e type;
+
+  infernal_t( warlock_t*, util::string_view = "infernal" );
+  void init_base_stats() override;
+  void create_buffs() override;
+  void arise() override;
+  void demise() override;
+  double composite_player_multiplier( school_e ) const override;
+};
+
+struct doomguard_t : public warlock_simple_pet_t
+{
+  int doom_bolt_executes;
+
+  doomguard_t( warlock_t* );
+  void init_base_stats() override;
+  action_t* create_action( util::string_view, util::string_view ) override;
+  void arise() override;
+};
+
+
 namespace demonology
 {
 struct felguard_pet_t : public warlock_pet_t
@@ -405,173 +418,9 @@ private:
   void reschedule_firebolt();
 };
 
-struct dreadstalker_t : public warlock_pet_t
-{
-  int dreadbite_executes;
-  timespan_t server_action_delay;
-
-  dreadstalker_t( warlock_t* );
-  dreadstalker_t( warlock_t*, util::string_view, pet_e );
-  void init_base_stats() override;
-  void arise() override;
-  void demise() override;
-  timespan_t available() const override;
-  action_t* create_action( util::string_view, util::string_view ) override;
-  double composite_player_multiplier( school_e ) const override;
-  double composite_melee_crit_chance() const override;
-  double composite_spell_crit_chance() const override;
-  void queue_dreadbite();
-};
-
-struct vilefiend_t : public warlock_simple_pet_t
-{
-  int bile_spit_executes;
-  buff_t* infernal_presence;
-  buff_t* mark_of_shatug; // Dummy buff to track if this is a Gloomhound
-  buff_t* mark_of_fharg; // Dummy buff to track if this is a Charhound
-
-  vilefiend_t( warlock_t* );
-  void init_base_stats() override;
-  void create_buffs() override;
-  void arise() override;
-  action_t* create_action( util::string_view, util::string_view ) override;
-  double composite_player_multiplier( school_e ) const override;
-};
-
-struct demonic_tyrant_t : public warlock_pet_t
-{
-  demonic_tyrant_t( warlock_t*, util::string_view = "demonic_tyrant" );
-  action_t* create_action( util::string_view, util::string_view ) override;
-  double composite_player_multiplier( school_e ) const override;
-};
-
-struct doomguard_t : public warlock_simple_pet_t
-{
-  int doom_bolt_executes;
-
-  doomguard_t( warlock_t* );
-  void init_base_stats() override;
-  action_t* create_action( util::string_view, util::string_view ) override;
-  void arise() override;
-};
-
-struct greater_dreadstalker_t : public dreadstalker_t
-{
-  bool vilefiend_present_on_summon;
-
-  greater_dreadstalker_t( warlock_t* );
-  void arise() override;
-  void demise() override;
-  double composite_player_multiplier( school_e ) const override;
-};
 }  // namespace demonology
 
-namespace destruction
-{
-struct infernal_t : public warlock_pet_t
-{
-  buff_t* immolation;
-  enum infernal_type_e { MAIN, RAIN, FRAG };
-  infernal_type_e type;
 
-  infernal_t( warlock_t*, util::string_view = "infernal" );
-  void init_base_stats() override;
-  void create_buffs() override;
-  void arise() override;
-  void demise() override;
-  double composite_player_multiplier( school_e ) const override;
-};
-
-struct shadowy_tear_t : public warlock_pet_t
-{
-  int barrages;
-  action_t* cinder;
-
-  shadowy_tear_t( warlock_t*, util::string_view = "Shadowy Tear" );
-  void arise() override;
-  action_t* create_action( util::string_view, util::string_view ) override;
-};
-
-struct unstable_tear_t : public warlock_pet_t
-{
-  int barrages;
-  action_t* cinder;
-
-  unstable_tear_t( warlock_t*, util::string_view = "Unstable Tear" );
-  void arise() override;
-  action_t* create_action( util::string_view, util::string_view ) override;
-};
-
-struct chaos_tear_t : public warlock_pet_t
-{
-  int bolts;
-  action_t* cinder;
-
-  chaos_tear_t( warlock_t*, util::string_view = "Chaos Tear" );
-  void arise() override;
-  action_t* create_action( util::string_view, util::string_view ) override;
-};
-
-struct overfiend_t : public warlock_pet_t
-{
-  overfiend_t( warlock_t*, util::string_view = "Overfiend" );
-  action_t* create_action( util::string_view, util::string_view ) override;
-};
-}  // namespace destruction
-
-namespace affliction
-{
-struct darkglare_t : public warlock_pet_t
-{
-  darkglare_t( warlock_t*, util::string_view = "darkglare" );
-  action_t* create_action( util::string_view , util::string_view ) override;
-};
-}  // namespace affliction
-
-namespace diabolist
-{
-  struct overlord_t : public warlock_pet_t
-  {
-    int cleaves;
-
-    overlord_t( warlock_t*, util::string_view = "overlord" );
-    void arise() override;
-    action_t* create_action( util::string_view, util::string_view ) override;
-  };
-
-  struct mother_of_chaos_t : public warlock_pet_t
-  {
-    int salvos;
-
-    mother_of_chaos_t( warlock_t*, util::string_view = "mother_of_chaos" );
-    void arise() override;
-    action_t* create_action( util::string_view, util::string_view ) override;
-  };
-
-  struct pit_lord_t : public warlock_pet_t
-  {
-    int felseekers;
-
-    pit_lord_t( warlock_t*, util::string_view = "pit_lord" );
-    void arise() override;
-    void init_base_stats() override;
-    action_t* create_action( util::string_view, util::string_view ) override;
-  };
-
-  struct infernal_fragment_t : public destruction::infernal_t
-  {
-    infernal_fragment_t( warlock_t*, util::string_view = "infernal_fragment" );
-  };
-
-  struct diabolic_imp_t : public warlock_pet_t
-  {
-    int bolts;
-
-    diabolic_imp_t( warlock_t*, util::string_view = "diabolic_imp" );
-    void arise() override;
-    action_t* create_action( util::string_view, util::string_view ) override;
-  };
-}  // namespace diabolist
 }  // namespace pets
 }  // namespace warlock
 

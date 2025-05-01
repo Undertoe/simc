@@ -16,120 +16,51 @@ warlock_td_t::warlock_td_t( player_t* target, warlock_t& p )
 {
   // Shared
   dots_drain_life = target->get_dot( "drain_life", &p );
-  dots_drain_life_aoe = target->get_dot( "drain_life_aoe", &p );
 
   // Affliction
   dots_corruption = target->get_dot( "corruption", &p );
   dots_agony = target->get_dot( "agony", &p );
   dots_drain_soul = target->get_dot( "drain_soul", &p );
-  dots_phantom_singularity = target->get_dot( "phantom_singularity", &p );
   dots_seed_of_corruption = target->get_dot( "seed_of_corruption", &p );
   dots_unstable_affliction = target->get_dot( "unstable_affliction", &p );
-  dots_jackpot_ua = target->get_dot( "unstable_affliction_jackpot", &p );
-  dots_vile_taint = target->get_dot( "vile_taint_dot", &p );
-  dots_soul_rot = target->get_dot( "soul_rot", &p );
 
-  debuffs_haunt = make_buff( *this, "haunt", p.talents.haunt )
-                      ->set_refresh_behavior( buff_refresh_behavior::PANDEMIC )
-                      ->set_default_value_from_effect( 2 )
-                      ->set_cooldown( 0_ms );
-
-  debuffs_shadow_embrace = make_buff( *this, "shadow_embrace", p.talents.drain_soul.ok() ? p.talents.shadow_embrace_debuff_ds : p.talents.shadow_embrace_debuff_sb )
-                               ->set_default_value_from_effect( 1 );
-
-  debuffs_infirmity = make_buff( *this, "infirmity", p.talents.infirmity_debuff )
-                          ->set_default_value( p.talents.infirmity_debuff->effectN( 1 ).percent() )
-                          ->add_invalidate( CACHE_PLAYER_DAMAGE_MULTIPLIER );
+  // debuffs_haunt = make_buff( *this, "haunt", p.spells.haunt )
+  //                     ->set_refresh_behavior( buff_refresh_behavior::PANDEMIC )
+  //                     ->set_default_value_from_effect( 2 )
+  //                     ->set_cooldown( 0_ms );
+  debuffs_haunt = target->get_dot( "haunt", &p );
 
   // Demonology
-  debuffs_wicked_maw = make_buff( *this, "wicked_maw", p.talents.wicked_maw_debuff )
-                           ->set_default_value_from_effect( 1 );
-
-  debuffs_fel_sunder = make_buff( *this, "fel_sunder", p.talents.fel_sunder_debuff )
-                           ->set_default_value( p.talents.fel_sunder->effectN( 1 ).percent() );
-
-  debuffs_doom = make_buff( *this, "doom", p.talents.doom_debuff )
-                     ->set_stack_change_callback( [ &p ]( buff_t* b, int, int cur ) {
-                       if ( cur == 0 )
-                       {
-                         p.proc_actions.doom_proc->execute_on_target( b->player );
-
-                         if ( p.talents.pact_of_the_eredruin.ok() && p.rng().roll( p.rng_settings.pact_of_the_eredruin.setting_value ) )
-                         {
-                           p.warlock_pet_list.doomguards.spawn( 1u );
-                           p.procs.pact_of_the_eredruin->occur();
-                         }
-                       }
-                       } );
+  debuffs_doom = target->get_dot( "doom", &p );
 
   // Destruction
   dots_immolate = target->get_dot( "immolate", &p );
 
-  debuffs_eradication = make_buff( *this, "eradication", p.talents.eradication_debuff )
-                            ->set_default_value( p.talents.eradication->effectN( 2 ).percent() );
 
-  debuffs_shadowburn = make_buff( *this, "shadowburn", p.talents.shadowburn )
-                           ->set_default_value( p.talents.shadowburn_2->effectN( 1 ).base_value() / 10 );
+  debuffs_shadowburn = target->get_dot( "shadowburn", &p );
 
-  debuffs_pyrogenics = make_buff( *this, "pyrogenics", p.talents.pyrogenics_debuff )
-                           ->set_default_value( p.talents.pyrogenics->effectN( 1 ).percent() )
-                           ->set_schools_from_effect( 1 )
-                           ->add_invalidate( CACHE_PLAYER_DAMAGE_MULTIPLIER );
-
-  debuffs_conflagrate = make_buff( *this, "conflagrate", p.talents.conflagrate_debuff )
-                            ->set_default_value_from_effect( 1 );
+  debuffs_conflagrate = target->get_dot( "conflagrate", &p ); 
 
   // Use havoc_debuff where we need the data but don't have the active talent
-  debuffs_havoc = make_buff( *this, "havoc", p.talents.havoc_debuff )
-                      ->set_duration( p.talents.mayhem.ok() ? p.talents.mayhem->effectN( 3 ).time_value() : p.talents.havoc->duration() )
-                      ->set_cooldown( p.talents.mayhem.ok() ? p.talents.mayhem->internal_cooldown() : 0_ms )
-                      ->set_chance( p.talents.mayhem.ok() ? p.talents.mayhem->effectN( 1 ).percent() : p.talents.havoc->proc_chance() )
-                      ->set_stack_change_callback( [ &p ]( buff_t* b, int, int cur ) {
-                        if ( cur == 0 )
-                        {
-                          p.havoc_target = nullptr;
-                        }
-                        else
-                        {
-                          if ( p.havoc_target && p.havoc_target != b->player )
-                            p.get_target_data( p.havoc_target )->debuffs_havoc->expire();
-                          p.havoc_target = b->player;
-                        }
+  // debuffs_havoc = make_buff( *this, "havoc", p.talents.havoc_debuff )
+  //                     ->set_duration( p.talents.mayhem.ok() ? p.talents.mayhem->effectN( 3 ).time_value() : p.talents.havoc->duration() )
+  //                     ->set_cooldown( p.talents.mayhem.ok() ? p.talents.mayhem->internal_cooldown() : 0_ms )
+  //                     ->set_chance( p.talents.mayhem.ok() ? p.talents.mayhem->effectN( 1 ).percent() : p.talents.havoc->proc_chance() )
+  //                     ->set_stack_change_callback( [ &p ]( buff_t* b, int, int cur ) {
+  //                       if ( cur == 0 )
+  //                       {
+  //                         p.havoc_target = nullptr;
+  //                       }
+  //                       else
+  //                       {
+  //                         if ( p.havoc_target && p.havoc_target != b->player )
+  //                           p.get_target_data( p.havoc_target )->debuffs_havoc->expire();
+  //                         p.havoc_target = b->player;
+  //                       }
 
-                        range::for_each( p.havoc_spells, []( action_t* a ) { a->target_cache.is_valid = false; } );
-                      } );
+  //                       range::for_each( p.havoc_spells, []( action_t* a ) { a->target_cache.is_valid = false; } );
+  //                     } );
 
-  // Diabolist
-  debuffs_cloven_soul = make_buff( *this, "cloven_soul", p.hero.cloven_soul_debuff );
-
-  // Hellcaller
-  dots_wither = target->get_dot( "wither", &p );
-
-  debuffs_blackened_soul = make_buff( *this, "blackened_soul", p.hero.blackened_soul_trigger )
-                               ->set_duration( 0_ms )
-                               ->set_tick_zero( false )
-                               ->set_period( p.hero.blackened_soul_trigger->effectN( 1 ).period() )
-                               ->set_tick_time_behavior( buff_tick_time_behavior::UNHASTED )
-                               ->set_tick_callback( [ this, target ]( buff_t*, int, timespan_t )
-                                 { warlock.proc_actions.blackened_soul->execute_on_target( target ); } )
-                               ->set_tick_behavior( buff_tick_behavior::REFRESH )
-                               ->set_freeze_stacks( true );
-
-  // Soul Harvester
-  dots_soul_anathema = target->get_dot( "soul_anathema", &p );
-
-  debuffs_shared_fate = make_buff( *this, "shared_fate", p.hero.shared_fate_debuff )
-                            ->set_tick_zero( false )
-                            ->set_tick_time_behavior( buff_tick_time_behavior::HASTED )
-                            ->set_tick_behavior( buff_tick_behavior::REFRESH )
-                            ->set_refresh_behavior( buff_refresh_behavior::PANDEMIC )
-                            ->set_partial_tick( true )
-                            ->set_period( p.hero.shared_fate_debuff->effectN( 1 ).period() )
-                            ->set_tick_callback( [ this, target ]( buff_t* b, int, timespan_t actual_tick_time )
-                              {
-                                helpers::set_shared_fate_tick_factor( &warlock, actual_tick_time.total_seconds() / b->tick_time().total_seconds() );
-                                warlock.proc_actions.shared_fate->execute_on_target( target );
-                              } );
 
   target->register_on_demise_callback( &p, [ this ]( player_t* ) { target_demise(); } );
 }
@@ -140,13 +71,6 @@ void warlock_td_t::target_demise()
     return;
 
   if ( dots_unstable_affliction->is_ticking() )
-  {
-    warlock.sim->print_log( "Player {} demised. Warlock {} gains a shard from Unstable Affliction.", target->name(), warlock.name() );
-
-    warlock.resource_gain( RESOURCE_SOUL_SHARD, warlock.talents.unstable_affliction_2->effectN( 1 ).base_value(), warlock.gains.unstable_affliction_refund );
-  }
-
-  if ( dots_jackpot_ua->is_ticking() )
   {
     warlock.sim->print_log( "Player {} demised. Warlock {} gains a shard from Unstable Affliction.", target->name(), warlock.name() );
 
@@ -177,33 +101,6 @@ void warlock_td_t::target_demise()
 
     warlock.resource_gain( RESOURCE_SOUL_SHARD, debuffs_shadowburn->check_value(), warlock.gains.shadowburn_refund );
   }
-
-  if ( warlock.hero.demonic_soul.ok() && warlock.hero.shared_fate.ok() )
-  {
-    for ( player_t* t : warlock.sim->target_non_sleeping_list )
-    {
-      auto tdata = warlock.get_target_data( t );
-
-      if ( !tdata )
-        continue;
-
-      if ( tdata == this )
-        continue;
-
-      warlock.sim->print_log( "Player {} demised. Warlock {} triggers Shared Fate on {}.", target->name(), warlock.name(), t->name() );
-
-      tdata->debuffs_shared_fate->trigger();
-
-      break;
-    }
-  }
-
-  if ( warlock.hero.demonic_soul.ok() && warlock.hero.feast_of_souls.ok() && warlock.rng().roll( warlock.rng_settings.feast_of_souls.setting_value ) )
-  {
-    warlock.sim->print_log( "Player {} demised. Warlock {} triggers Feast of Souls.", target->name(), warlock.name() );
-
-    warlock.feast_of_souls_gain();
-  }
 }
 
 int warlock_td_t::count_affliction_dots() const
@@ -222,18 +119,6 @@ int warlock_td_t::count_affliction_dots() const
   if ( dots_unstable_affliction->is_ticking() )
     count++;
 
-  if ( dots_vile_taint->is_ticking() )
-    count++;
-
-  if ( dots_phantom_singularity->is_ticking() )
-    count++;
-
-  if ( dots_soul_rot->is_ticking() )
-    count++;
-
-  if ( dots_wither->is_ticking() )
-    count++;
-
   return count;
 }
 
@@ -243,9 +128,6 @@ int warlock_td_t::count_affliction_dots( bool include_tier_ua ) const
 
   if ( !include_tier_ua )
     return count;
-
-  if ( dots_jackpot_ua->is_ticking() )
-    count++;
 
   return count;
 }
@@ -262,7 +144,6 @@ warlock_t::warlock_t( sim_t* sim, util::string_view name, race_e r )
     active_pets( 0 ),
     warlock_pet_list( this ),
     talents(),
-    hero(),
     proc_actions(),
     tier(),
     cooldowns(),
@@ -278,10 +159,7 @@ warlock_t::warlock_t( sim_t* sim, util::string_view name, race_e r )
   cooldowns.haunt = get_cooldown( "haunt" );
   cooldowns.shadowburn = get_cooldown( "shadowburn" );
   cooldowns.soul_fire = get_cooldown( "soul_fire" );
-  cooldowns.dimensional_rift = get_cooldown( "dimensional_rift" );
   cooldowns.felstorm_icd = get_cooldown( "felstorm_icd" );
-  cooldowns.blackened_soul = get_cooldown( "blackened_soul_icd" );
-  cooldowns.seeds_of_their_demise = get_cooldown( "seeds_of_their_demise_icd" );
 
   resource_regeneration = regen_type::DYNAMIC;
   regen_caches[ CACHE_HASTE ] = true;
@@ -311,30 +189,18 @@ double warlock_t::composite_player_target_multiplier( player_t* target, school_e
 
   if ( specialization() == WARLOCK_AFFLICTION )
   {
-    if ( talents.haunt.ok() )
-      m *= 1.0 + td->debuffs_haunt->check_value();
-
-    if ( talents.shadow_embrace.ok() )
-      m *= 1.0 + td->debuffs_shadow_embrace->check_stack_value();
+    m *= 1.0 + td->debuffs_haunt->check_value();
   }
 
   if ( specialization() == WARLOCK_DESTRUCTION )
   {
-    if ( talents.eradication.ok() )
-      m *= 1.0 + td->debuffs_eradication->check_value();
 
-    if ( talents.pyrogenics.ok() && td->debuffs_pyrogenics->has_common_school( school ) )
-      m *= 1.0 + td->debuffs_pyrogenics->check_value();
   }
 
   if ( specialization() == WARLOCK_DEMONOLOGY )
   {
-    if ( talents.fel_sunder.ok() )
-      m *= 1.0 + td->debuffs_fel_sunder->check_stack_value();
-  }
 
-  if ( hero.cloven_souls.ok() && td->debuffs_cloven_soul->check() )
-    m *= 1.0 + hero.cloven_soul_debuff->effectN( 1 ).percent();
+  }
 
   return m;
 }
@@ -345,7 +211,7 @@ double warlock_t::composite_player_multiplier( school_e school ) const
 
   if ( specialization() == WARLOCK_DESTRUCTION )
   {
-    m *= 1.0 + buffs.rolling_havoc->check_stack_value();
+
   }
 
   return m;
@@ -360,8 +226,6 @@ double warlock_t::composite_player_pet_damage_multiplier( const action_state_t* 
     m *= 1.0 + warlock_base.destruction_warlock->effectN( guardian ? 4 : 3 ).percent();
 
     // 2022-11-27 Rolling Havoc is missing the aura for guardians
-    if ( talents.rolling_havoc.ok() && !guardian )
-      m *= 1.0 + buffs.rolling_havoc->check_stack_value();
   }
 
   if ( specialization() == WARLOCK_DEMONOLOGY )
@@ -373,34 +237,12 @@ double warlock_t::composite_player_pet_damage_multiplier( const action_state_t* 
       m *= 1.0 + cache.mastery_value();
     else
       m *= 1.0 + ( cache.mastery_value() ) * ( warlock_base.master_demonologist->effectN( 3 ).sp_coeff() / warlock_base.master_demonologist->effectN( 1 ).sp_coeff() );
-
-    if ( !guardian && talents.rune_of_shadows.ok() )
-      m *= 1.0 + talents.rune_of_shadows->effectN( 1 ).percent();
-
-    if ( !guardian && sets->has_set_bonus( WARLOCK_DEMONOLOGY, TWW1, B2 ) )
-      m *= 1.0 + tier.hexflame_demo_2pc->effectN( 1 ).percent();
   }
 
   if ( specialization() == WARLOCK_AFFLICTION )
   {
     m *= 1.0 + warlock_base.affliction_warlock->effectN( guardian ? 7 : 3 ).percent();
-
-    // 2024-07-06 Summoner's Embrace only affects main pet
-    if ( !guardian && talents.summoners_embrace.ok() )
-      m *= 1.0 + talents.summoners_embrace->effectN( 2 ).percent();
   }
-
-  if ( hero.flames_of_xoroth.ok() )
-    m *= 1.0 + hero.flames_of_xoroth->effectN( guardian ? 3 : 4 ).percent();
-
-  if ( hero.abyssal_dominion.ok() && buffs.abyssal_dominion->check() )
-    m *= 1.0 + hero.abyssal_dominion_buff->effectN( guardian ? 1 : 2 ).percent();
-
-  if ( hero.xalans_ferocity.ok() )
-    m *= 1.0 + hero.xalans_ferocity->effectN( guardian ? 7 : 3 ).percent();
-
-  if ( hero.xalans_cruelty.ok() )
-    m *= 1.0 + hero.xalans_cruelty->effectN( guardian ? 6 : 5 ).percent();
 
   return m;
 }
@@ -413,31 +255,17 @@ double warlock_t::composite_player_target_pet_damage_multiplier( player_t* targe
 
   if ( specialization() == WARLOCK_AFFLICTION )
   {
-    if ( talents.haunt.ok() && td->debuffs_haunt->check() )
+    if ( td->debuffs_haunt->check() )
       m *= 1.0 + td->debuffs_haunt->data().effectN( guardian ? 4 : 3 ).percent();
-
-    if ( talents.shadow_embrace.ok() )
-      m *= 1.0 + td->debuffs_shadow_embrace->check_stack_value();
-
-    if ( talents.infirmity.ok() && !guardian )
-      m *= 1.0 + td->debuffs_infirmity->check_stack_value(); // Guardian effect is missing from spell data. Last checked 2024-07-07
   }
 
   if ( specialization() == WARLOCK_DESTRUCTION )
   {
-    if ( talents.eradication.ok() )
-      m *= 1.0 + td->debuffs_eradication->check_value();
   }
 
   if ( specialization() == WARLOCK_DEMONOLOGY )
   {
-    // Fel Sunder lacks guardian effect, so only main pet is benefitting. Last checked 2024-07-14
-    if ( talents.fel_sunder.ok() && ( !guardian || !bugs ) )
-      m *= 1.0 + td->debuffs_fel_sunder->check_stack_value();
   }
-
-  if ( hero.cloven_souls.ok() && td->debuffs_cloven_soul->check() )
-    m *= 1.0 + hero.cloven_soul_debuff->effectN( guardian ? 3 : 2 ).percent();
 
   return m;
 }
@@ -446,10 +274,8 @@ double warlock_t::composite_spell_crit_chance() const
 {
   double m = player_t::composite_spell_crit_chance();
 
-  m += talents.demonic_tactics->effectN( 1 ).percent();
-
-  if ( specialization() == WARLOCK_DESTRUCTION && talents.backlash.ok() )
-    m += talents.backlash->effectN( 1 ).percent();
+  // if ( specialization() == WARLOCK_DESTRUCTION && talents.backlash.ok() )
+  //   m += talents.backlash->effectN( 1 ).percent();
 
   return m;
 }
@@ -458,8 +284,6 @@ double warlock_t::composite_melee_crit_chance() const
 {
   double m = player_t::composite_melee_crit_chance();
 
-  if ( specialization() == WARLOCK_DESTRUCTION && talents.backlash.ok() )
-    m += talents.backlash->effectN( 1 ).percent();
 
   return m;
 }
@@ -468,8 +292,6 @@ double warlock_t::composite_player_critical_damage_multiplier( const action_stat
 {
   double m = player_t::composite_player_critical_damage_multiplier( s );
 
-  if ( specialization() == WARLOCK_DEMONOLOGY && talents.demonic_brutality.ok() )
-    m *= 1.0 + talents.demonic_brutality->effectN( 1 ).percent();
 
   return m;
 }
@@ -483,7 +305,7 @@ double warlock_t::composite_rating_multiplier( rating_e r ) const
     case RATING_MELEE_CRIT:
     case RATING_RANGED_CRIT:
     case RATING_SPELL_CRIT:
-      m *= 1.0 + talents.demonic_tactics->effectN( 2 ).percent();
+      // m *= 1.0 + talents.demonic_tactics->effectN( 2 ).percent();
       break;
     default:
       break;
@@ -496,9 +318,6 @@ double warlock_t::composite_rating_multiplier( rating_e r ) const
 // a missing level requirement in data, but correct generally.
 double warlock_t::matching_gear_multiplier( attribute_e attr ) const
 {
-  if ( attr == ATTR_INTELLECT )
-    return warlock_base.nethermancy->effectN( 1 ).percent();
-
   return 0.0;
 }
 
@@ -664,24 +483,8 @@ std::string warlock_t::create_profile( save_e stype )
     if ( normalize_destruction_mastery )
       profile_str += "normalize_destruction_mastery=" + util::to_string( normalize_destruction_mastery ) + "\n";
 
-    profile_str += append_rng_option( rng_settings.cunning_cruelty_sb );
-    profile_str += append_rng_option( rng_settings.cunning_cruelty_ds );
     profile_str += append_rng_option( rng_settings.agony );
     profile_str += append_rng_option( rng_settings.nightfall );
-    profile_str += append_rng_option( rng_settings.pact_of_the_eredruin );
-    profile_str += append_rng_option( rng_settings.shadow_invocation );
-    profile_str += append_rng_option( rng_settings.spiteful_reconstitution );
-    profile_str += append_rng_option( rng_settings.decimation );
-    profile_str += append_rng_option( rng_settings.dimension_ripper );
-    profile_str += append_rng_option( rng_settings.blackened_soul );
-    profile_str += append_rng_option( rng_settings.bleakheart_tactics );
-    profile_str += append_rng_option( rng_settings.seeds_of_their_demise );
-    profile_str += append_rng_option( rng_settings.mark_of_perotharn );
-    profile_str += append_rng_option( rng_settings.succulent_soul_aff );
-    profile_str += append_rng_option( rng_settings.succulent_soul_demo );
-    profile_str += append_rng_option( rng_settings.feast_of_souls );
-    profile_str += append_rng_option( rng_settings.umbral_lattice );
-    profile_str += append_rng_option( rng_settings.empowered_legion_strike );
   }
 
   return profile_str;
@@ -698,24 +501,8 @@ void warlock_t::copy_from( player_t* source )
   disable_auto_felstorm = p->disable_auto_felstorm;
   normalize_destruction_mastery = p->normalize_destruction_mastery;
 
-  rng_settings.cunning_cruelty_sb = p->rng_settings.cunning_cruelty_sb;
-  rng_settings.cunning_cruelty_ds = p->rng_settings.cunning_cruelty_ds;
   rng_settings.agony = p->rng_settings.agony;
   rng_settings.nightfall = p->rng_settings.nightfall;
-  rng_settings.pact_of_the_eredruin = p->rng_settings.pact_of_the_eredruin;
-  rng_settings.shadow_invocation = p->rng_settings.shadow_invocation;
-  rng_settings.spiteful_reconstitution = p->rng_settings.spiteful_reconstitution;
-  rng_settings.decimation = p->rng_settings.decimation;
-  rng_settings.dimension_ripper = p->rng_settings.dimension_ripper;
-  rng_settings.blackened_soul = p->rng_settings.blackened_soul;
-  rng_settings.bleakheart_tactics = p->rng_settings.bleakheart_tactics;
-  rng_settings.seeds_of_their_demise = p->rng_settings.seeds_of_their_demise;
-  rng_settings.mark_of_perotharn = p->rng_settings.mark_of_perotharn;
-  rng_settings.succulent_soul_aff = p->rng_settings.succulent_soul_aff;
-  rng_settings.succulent_soul_demo = p->rng_settings.succulent_soul_demo;
-  rng_settings.feast_of_souls = p->rng_settings.feast_of_souls;
-  rng_settings.umbral_lattice = p->rng_settings.umbral_lattice;
-  rng_settings.empowered_legion_strike = p->rng_settings.empowered_legion_strike;
 }
 
 stat_e warlock_t::convert_hybrid_stat( stat_e s ) const
@@ -931,14 +718,6 @@ std::unique_ptr<expr_t> warlock_t::create_expression( util::string_view name_str
   {
     return make_fn_expr( name_str, [ this ]()
       {
-        return buffs.ritual_overlord->check() || buffs.ritual_mother->check() || buffs.ritual_pit_lord->check();
-      } );
-  }
-  else if ( name_str == "demonic_art" )
-  {
-    return make_fn_expr( name_str, [ this ]()
-      {
-        return buffs.art_overlord->check() || buffs.art_mother->check() || buffs.art_pit_lord->check();
       } );
   }
 
@@ -980,22 +759,25 @@ double warlock_t::resource_gain( resource_e resource_type, double amount, gain_t
 {
   double actual_amount = player_t::resource_gain( resource_type, amount, source, action );
 
-  if ( resource_type == RESOURCE_SOUL_SHARD && actual_amount > 0.0 && hero.demonic_soul.ok() )
+  if ( resource_type == RESOURCE_SOUL_SHARD && actual_amount > 0.0 )
   {
     for ( int i = 0; i < as<int>( actual_amount ); i++ )
     {
       double chance = 0.0;
 
       if ( specialization() == WARLOCK_AFFLICTION )
-        chance = rng_settings.succulent_soul_aff.setting_value;
+      {
+
+      }
 
       if ( specialization() == WARLOCK_DEMONOLOGY )
-        chance = rng_settings.succulent_soul_demo.setting_value;
-
-      if ( rng().roll( chance ) )
       {
-        buffs.succulent_soul->trigger();
-        procs.succulent_soul->occur();
+
+      }
+
+      if ( specialization() == WARLOCK_DESTRUCTION )
+      {
+
       }
     }
   }
@@ -1005,11 +787,8 @@ double warlock_t::resource_gain( resource_e resource_type, double amount, gain_t
 
 void warlock_t::feast_of_souls_gain()
 {
-  player_t::resource_gain( RESOURCE_SOUL_SHARD, 1.0, gains.feast_of_souls );
+  // player_t::resource_gain( RESOURCE_SOUL_SHARD, 1.0, gains.feast_of_souls );
 
-  buffs.succulent_soul->trigger();
-  procs.succulent_soul->occur();
-  procs.feast_of_souls->occur();
 }
 
 struct warlock_module_t : public module_t
@@ -1039,23 +818,8 @@ struct warlock_module_t : public module_t
 warlock::warlock_t::pets_t::pets_t( warlock_t* w )
   : active( nullptr ),
     infernals( "infernal", w ),
-    darkglares( "darkglare", w ),
-    dreadstalkers( "dreadstalker", w ),
-    vilefiends( "vilefiend", w ),
-    demonic_tyrants( "demonic_tyrant", w ),
-    grimoire_felguards( "grimoire_felguard", w ),
     wild_imps( "wild_imp", w ),
-    doomguards( "Doomguard", w ),
-    greater_dreadstalkers( "greater_dreadstalker", w ),
-    shadow_rifts( "shadowy_tear", w ),
-    unstable_rifts( "unstable_tear", w ),
-    chaos_rifts( "chaos_tear", w ),
-    overfiends( "overfiend", w ),
-    overlords( "overlord", w ),
-    mothers( "mother_of_chaos", w ),
-    pit_lords( "pit_lord", w ),
-    fragments( "infernal_fragment", w ),
-    diabolic_imps( "diabolic_imp", w )
+    doomguards( "Doomguard", w )
 { }
 }  // namespace warlock
 
